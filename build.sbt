@@ -2,12 +2,15 @@ ThisBuild / scalaVersion := "3.3.1"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "adentis",
+    name         := "adentis",
     organization := "io.github.rthoth",
-    version := "0.0.0-SNAPSHOT",
-    isSnapshot := true,
+    version      := "0.0.0-SNAPSHOT",
+    isSnapshot   := true,
     libraryDependencies ++= Seq(
-      Dependencies.Zio
+      Dependencies.Zio,
+      Dependencies.ZQuill,
+      Dependencies.Flyway,
+      Dependencies.Database
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )

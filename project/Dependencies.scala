@@ -9,8 +9,26 @@ object Dependencies {
     "dev.zio" %% "zio-test-sbt" % Version.Zio % Test
   )
 
+  val ZQuill = Seq(
+    "io.getquill" %% "quill-jdbc-zio" % Version.QuillJdbc
+  )
+
+  val Flyway = Seq(
+    "org.flywaydb" % "flyway-core"                % Version.Flyway,
+    "org.flywaydb" % "flyway-database-postgresql" % Version.Flyway
+  )
+
+  val Database = Seq(
+    "com.zaxxer"     % "HikariCP"   % Version.HikariCP,
+    "org.postgresql" % "postgresql" % Version.Postgres
+  )
+
   object Version {
-    val Zio = "2.1-RC1"
+    val Zio       = "2.1-RC1"
+    val QuillJdbc = "4.8.0"
+    val Postgres  = "42.5.4"
+    val Flyway    = "10.6.0"
+    val HikariCP  = "5.1.0"
   }
 
 }

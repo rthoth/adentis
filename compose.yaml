@@ -1,0 +1,10 @@
+version: "3.0.0"
+
+services:
+  postgres:
+    image: "docker.io/postgres:16-alpine"
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: adentis
+      POSTGRES_DB: adentis
