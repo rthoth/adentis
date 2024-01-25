@@ -5,7 +5,7 @@ import scala.annotation.tailrec
 import zio.Task
 import zio.ZIO
 
-object CommandLine {
+object CommandLine:
 
   def apply(args: Seq[String]): Task[CommandLine] = ZIO.attempt {
     val iterator = args.iterator
@@ -65,7 +65,5 @@ object CommandLine {
 
     readNext(None, None)
   }
-
-}
 
 case class CommandLine(query: QueryInterval, report: Seq[ReportInterval])

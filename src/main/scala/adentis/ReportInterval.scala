@@ -1,6 +1,12 @@
 package adentis
 
-trait ReportInterval
+import java.time.LocalDateTime
+import java.time.Period
+import java.time.temporal.ChronoUnit
+
+trait ReportInterval:
+
+  def test(now: LocalDateTime, reference: LocalDateTime): Boolean
 
 object ReportInterval:
 
@@ -11,6 +17,13 @@ object ReportInterval:
     GreaterThan(12)
   )
 
-  final case class Between(beginning: Int, ending: Int) extends ReportInterval
+  final case class Between(beginning: Int, ending: Int) extends ReportInterval:
 
-  final case class GreaterThan(reference: Int) extends ReportInterval
+    override def test(now: LocalDateTime, reference: LocalDateTime): Boolean =
+      val value = reference.until(now, ChronoUnit.MONTHS)
+      value >= beginning && value < ending
+
+  final case class GreaterThan(value: Int) extends ReportInterval:
+
+    override def test(now: LocalDateTime, reference: LocalDateTime): Boolean =
+      reference.until(now, ChronoUnit.MONTHS) > value

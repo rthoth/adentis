@@ -23,6 +23,18 @@ object Dependencies {
     "org.postgresql" % "postgresql" % Version.Postgres
   )
 
+  val Ducktape = Seq(
+    "io.github.arainko" %% "ducktape" % "0.1.11"
+  )
+
+  val ZioPostgresSQLTest = Seq(
+    "io.github.scottweaver" %% "zio-2-0-testcontainers-postgresql" % "0.10.0" % Test
+  )
+
+  val Logging = Seq(
+    "org.apache.logging.log4j" % "log4j-slf4j-impl" % "2.22.1"
+  )
+
   object Version {
     val Zio       = "2.1-RC1"
     val QuillJdbc = "4.8.0"

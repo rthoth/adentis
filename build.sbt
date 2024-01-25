@@ -10,7 +10,10 @@ lazy val root = (project in file("."))
       Dependencies.Zio,
       Dependencies.ZQuill,
       Dependencies.Flyway,
-      Dependencies.Database
+      Dependencies.Database,
+      Dependencies.Ducktape,
+      Dependencies.ZioPostgresSQLTest,
+      Dependencies.Logging
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )

@@ -5,7 +5,10 @@ import com.zaxxer.hikari.HikariDataSource
 import javax.sql.DataSource
 import org.flywaydb.core.Flyway
 import zio.Task
+import zio.TaskLayer
+import zio.ULayer
 import zio.ZIO
+import zio.ZLayer
 
 object DatabaseModule {
 
@@ -33,6 +36,8 @@ object DatabaseModule {
 }
 
 class DatabaseModule(val dataSource: DataSource):
+
+  def dataSourceLayer: ULayer[DataSource] = ZLayer.succeed(dataSource)
 
   def migrate(): Task[DatabaseModule] = ZIO
     .attemptBlocking {
