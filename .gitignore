@@ -13,3 +13,9 @@ hs_err_pid*
 /project/project/
 
 *.ods\#
+
+/.vscode/
+/.metals/
+/project/metals.sbt
+/project/.bloop/
+/.bloop/

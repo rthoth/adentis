@@ -12,14 +12,14 @@ trait LocalDateService:
 
 object LocalDateService:
 
-  val live: ULayer[LocalDateService] = ZLayer.succeed(Impl())
+  val live: ULayer[LocalDateService] = ZLayer.succeed(Live())
 
   def fixed(localDateTime: LocalDateTime): ULayer[LocalDateService] = ZLayer.succeed(Fixed(localDateTime))
-
+    
   def now(): URIO[LocalDateService, LocalDateTime] =
     ZIO.serviceWith(_.now())
 
-  private class Impl extends LocalDateService:
+  private class Live extends LocalDateService:
 
     override def now(): LocalDateTime = LocalDateTime.now()
 
