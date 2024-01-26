@@ -17,3 +17,7 @@ lazy val root = (project in file("."))
     ).flatten,
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
+  .enablePlugins(PackPlugin)
+  .settings(
+    packMain := Map("orders" -> "adentis.Main")
+  )
