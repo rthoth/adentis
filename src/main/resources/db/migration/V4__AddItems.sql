@@ -1,3 +1,4 @@
+-- This file was randomly generated, there is no guarantee of consistency. For instance, could be repeated order -> product.
 INSERT INTO items (id, order_id, product_id, price, quantity) VALUES
 ('1', '2967', '25', 2.13, 1),
 ('2', '2254', '39', 1.95, 1),

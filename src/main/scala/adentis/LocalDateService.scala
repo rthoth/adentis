@@ -1,7 +1,6 @@
 package adentis
 
 import java.time.LocalDateTime
-import zio.UIO
 import zio.ULayer
 import zio.URIO
 import zio.ZIO
@@ -15,9 +14,15 @@ object LocalDateService:
 
   val live: ULayer[LocalDateService] = ZLayer.succeed(Impl())
 
+  def fixed(localDateTime: LocalDateTime): ULayer[LocalDateService] = ZLayer.succeed(Fixed(localDateTime))
+
   def now(): URIO[LocalDateService, LocalDateTime] =
     ZIO.serviceWith(_.now())
 
   private class Impl extends LocalDateService:
-    
+
     override def now(): LocalDateTime = LocalDateTime.now()
+
+  private class Fixed(localDateTime: LocalDateTime) extends LocalDateService:
+
+    override def now(): LocalDateTime = localDateTime

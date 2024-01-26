@@ -24,5 +24,5 @@ object Main extends ZIOAppDefault:
       foundOrder      = orderQuerier.byInterval(commandLine.query)
       _              <- Reporter
                           .report(foundOrder, commandLine.report)
-                          .provide(LocalDateService.live)
+                          .provide(LocalDateService.fixed(commandLine.query.ending))
     yield Exit.Success

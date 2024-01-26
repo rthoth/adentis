@@ -37,12 +37,12 @@ object Reporter:
 
   @tailrec
   private def countInterval(now: LocalDateTime, intervalCount: IntervalCount, items: Seq[Item]): IntervalCount =
-    items.headOption match
-      case Some(item) if intervalCount.accept(now, item.createdAt) =>
-        intervalCount.increment()
-      case Some(_)                                                                =>
-        countInterval(now, intervalCount, items.tail)
-      case None                                                                   =>
+    items match
+      case item :: tail =>
+        if intervalCount.accept(now, item.createdAt) then intervalCount.increment()
+        else countInterval(now, intervalCount, tail)
+
+      case _ =>
         intervalCount
 
   private def print(count: IntervalCount): Task[Unit] =
