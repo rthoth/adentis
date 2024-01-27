@@ -7,15 +7,14 @@ import adentis.model.Order
 import adentis.model.Product
 import io.getquill.*
 import io.getquill.SnakeCase
+import io.getquill.extras.LocalDateTimeOps
 import io.getquill.jdbczio.Quill
 import io.github.arainko.ducktape.*
+import java.time.LocalDateTime
 import zio.RIO
 import zio.Task
 import zio.ZIO
 import zio.stream.ZStream
-import io.getquill.extras.LocalDateTimeOps
-
-import java.time.LocalDateTime
 
 trait OrderQuerier {
 
@@ -31,7 +30,7 @@ object OrderQuerier {
   def fromEnvironment: RIO[Quill.Postgres[SnakeCase], OrderQuerier] =
     ZIO.serviceWithZIO(this.apply)
 
-  private case class Holder(order: OrderTable, items: Seq[(ItemTable, ProductTable)]):
+  private case class Holder(order: StoredOrder, items: Seq[(StoredItem, StoredProduct)], count: Long):
 
     def build(): Order =
       order
@@ -40,7 +39,7 @@ object OrderQuerier {
           Field.const(_.items, buildItems())
         )
 
-    def buildItems(): Seq[Item] =
+    private def buildItems(): Seq[Item] =
       for (item, product) <- items yield {
         item
           .into[Item]
@@ -49,47 +48,51 @@ object OrderQuerier {
           )
       }
 
-    def buildProduct(product: ProductTable): Product =
+    private def buildProduct(product: StoredProduct): Product =
       product.into[Product].transform()
 
-    def hold(item: ItemTable, product: ProductTable): Holder = copy(
+    def hold(item: StoredItem, product: StoredProduct): Holder = copy(
       items = items :+ (item -> product)
     )
 
-  private type Tuple = (OrderTable, ItemTable, ProductTable)
+  private type Tuple = (StoredOrder, StoredItem, StoredProduct)
 
   private class Impl(quill: Quill.Postgres[SnakeCase]) extends OrderQuerier:
 
     import quill.*
 
     override def byInterval(interval: QueryInterval): ZStream[Any, Throwable, Order] =
-      stream {
+
+      val queryOrder = quote {
         for
           o <- orderTable
-                 .filter(o => o.createdAt >= lift(interval.beginning) && o.createdAt < lift(interval.ending))
-                 .sortBy(_.id)
+                 .filter(o => o.createdAt >= lift(interval.beginning) && o.createdAt <= lift(interval.ending))
           i <- itemTable.join(_.orderId == o.id)
           p <- productTable.join(_.id == i.productId)
-        yield Some((o, i, p))
+        yield (o, i, p)
+      }
+
+      stream {
+        for tuple <- queryOrder.sortBy(_._1.id) yield Some(tuple)
       }.concat(ZStream.succeed(None))
         .mapAccum(None)(accumulate)
         .collect { case Some(order) => order }
 
     private def accumulate(
-        holder: Option[Holder],
-        tuple: Option[Tuple]
+        state: Option[Holder],
+        element: Option[Tuple]
     ): (Option[Holder], Option[Order]) =
-      tuple match
+      element match
         case Some((order, item, product)) =>
-          holder match
+          state match
             case Some(holder) if holder.order.id == order.id =>
               (Some(holder.hold(item, product)), None)
             case Some(holder)                                =>
-              (Some(Holder(order, Seq(item -> product))), Some(holder.build()))
+              (Some(Holder(order, Seq(item -> product), holder.count + 1L)), Some(holder.build()))
             case None                                        =>
-              (Some(Holder(order, Seq(item -> product))), None)
+              (Some(Holder(order, Seq(item -> product), 1L)), None)
         case None                         =>
-          holder match
+          state match
             case Some(holder) => (None, Some(holder.build()))
             case None         => (None, None)
 

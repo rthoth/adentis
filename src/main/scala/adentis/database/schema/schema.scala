@@ -3,16 +3,16 @@ package adentis.database.schema
 import io.getquill.*
 import java.time.LocalDateTime
 
-case class OrderTable(
+case class StoredOrder(
     id: String,
     createdAt: LocalDateTime
 )
 
 val orderTable = quote {
-  querySchema[OrderTable]("orders")
+  querySchema[StoredOrder]("orders")
 }
 
-case class ItemTable(
+case class StoredItem(
     id: String,
     orderId: String,
     productId: String,
@@ -21,15 +21,15 @@ case class ItemTable(
 )
 
 val itemTable = quote {
-  querySchema[ItemTable]("items")
+  querySchema[StoredItem]("items")
 }
 
-case class ProductTable(
+case class StoredProduct(
     id: String,
     name: String,
     createdAt: LocalDateTime
 )
 
 val productTable = quote {
-  querySchema[ProductTable]("products")
+  querySchema[StoredProduct]("products")
 }
