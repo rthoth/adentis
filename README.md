@@ -33,6 +33,9 @@ docker-compose up
 This application will populate the database with products and orders that took place between 2021 and 2022. It is worth
 to know these data were randomly generated just for testing purposes, there is no guarantee of consistency.
 
+## Testing
+
+To run the tests you need to have Docker installed and your user needs to be able to run Docker containers.
 
 ## Bonus
 

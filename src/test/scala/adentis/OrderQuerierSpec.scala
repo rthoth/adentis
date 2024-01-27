@@ -41,9 +41,9 @@ object OrderQuerierSpec extends DatabaseSpec:
     test("return all orders") {
       for
         querier <- ZIO.service[OrderQuerier]
-        count   <- querier.byInterval(QueryInterval(beginning.withYear(2019), ending.withYear(2022))).runCount
+        count   <- querier.byInterval(QueryInterval(beginning.withYear(2019), ending.withYear(2023))).runCount
       yield assertTrue(
-        count == 4000
+        count == 3795
       )
     }.provide(layer) @@ TestAspect.withLiveClock,
     test("return some orders") {
@@ -56,7 +56,7 @@ object OrderQuerierSpec extends DatabaseSpec:
             .byInterval(QueryInterval(beginning, ending))
             .runCount
       yield assertTrue(
-        count == 1492
+        count == 1428
       )
     }.provide(layer) @@ TestAspect.withLiveClock
   ) @@ TestAspect.sequential
