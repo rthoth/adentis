@@ -14,41 +14,39 @@ import zio.stream.ZStream
 
 object Reporter:
 
-  private case class IntervalCount(interval: ReportInterval, value: Long):
+  private case class Counter(interval: ReportInterval, value: Long):
 
     def accept(now: LocalDateTime, reference: LocalDateTime): Boolean =
       interval.accept(now, reference)
 
-    def increment(): IntervalCount = copy(value = value + 1)
+    def increment(): Counter = copy(value = value + 1)
 
   def report(orders: ZStream[Any, Throwable, Order], template: Seq[ReportInterval]): RIO[LocalDateService, Unit] =
     for
-      initial <- ZIO.succeed(for interval <- template yield IntervalCount(interval, 0))
-      now     <- LocalDateService.now()
-      result  <- orders.runFold(initial)(count(now))
-      _       <- ZIO.foreach(result)(print)
+      initialState <- ZIO.succeed(for interval <- template yield Counter(interval, 0))
+      now          <- LocalDateService.now()
+      result       <- orders.runFold(initialState)(computeNewState(now))
+      _            <- ZIO.foreach(result)(print)
     yield ()
 
-  private def count(now: LocalDateTime)(state: Seq[IntervalCount], order: Order): Seq[IntervalCount] =
-    for intervalCount <- state
-    yield {
-      countInterval(now, intervalCount, order.items)
-    }
+  private def computeNewState(now: LocalDateTime)(state: Seq[Counter], order: Order): Seq[Counter] =
+    for counter <- state
+    yield count(now, counter, order.items)
 
   @tailrec
-  private def countInterval(now: LocalDateTime, intervalCount: IntervalCount, items: Seq[Item]): IntervalCount =
-    items match
-      case item :: tail =>
-        if intervalCount.accept(now, item.createdAt) then intervalCount.increment()
-        else countInterval(now, intervalCount, tail)
+  private def count(now: LocalDateTime, counter: Counter, items: Seq[Item]): Counter =
+    items.headOption match
+      case Some(item) =>
+        if counter.accept(now, item.createdAt) then counter.increment()
+        else count(now, counter, items.tail)
 
       case _ =>
-        intervalCount
+        counter
 
-  private def print(count: IntervalCount): Task[Unit] =
+  private def print(counter: Counter): Task[Unit] =
     ZIO.attempt {
-      count.interval match
+      counter.interval match
         case ReportInterval.Between(beginning, ending) => s"$beginning-$ending months"
         case ReportInterval.GreaterThan(value)         => s">$value months"
         case _                                         => throw IllegalStateException("Unexpected interval!")
-    } flatMap (interval => Console.printLine(s"$interval: ${count.value}"))
+    } flatMap (text => Console.printLine(s"$text: ${counter.value}"))

@@ -20,7 +20,7 @@ object ReportInterval:
 
     override def accept(now: LocalDateTime, reference: LocalDateTime): Boolean =
       val value = reference.until(now, ChronoUnit.MONTHS)
-      value >= beginning && value < ending
+      value >= beginning && value <= ending
 
   final case class GreaterThan(value: Int) extends ReportInterval:
 
